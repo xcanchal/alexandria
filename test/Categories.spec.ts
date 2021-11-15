@@ -59,6 +59,22 @@ describe("Categories", () => {
           "description should at least have 2 characters"
         );
       });
+      it("should throw an error if the category already exists", async () => {
+        const categories = await deployContract();
+        let error: any;
+        const [data] = categoriesData;
+        try {
+          const add1Tx = await categories.add(data.name, data.description);
+          await add1Tx.wait();
+          const add2Tx = await categories.add(data.name, data.description);
+          await add2Tx.wait();
+        } catch (e: any) {
+          error = e;
+        }
+        expect(error.message).to.contain(
+          `Category '${data.name}' already exists`
+        );
+      });
     });
 
     describe("Success cases", () => {

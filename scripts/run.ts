@@ -1,29 +1,66 @@
-// We require the Hardhat Runtime Environment explicitly here. This is optional
-// but useful for running the script in a standalone fashion through `node <script>`.
-//
-// When running the script with `npx hardhat run <script>` you'll find the Hardhat
-// Runtime Environment's members available in the global scope.
 import { ethers } from "hardhat";
 
+const categoriesData = [
+  { name: "photography", description: "all about photography" },
+  { name: "blockchain", description: "all about blockchain" },
+  { name: "pets", description: "all about pets" },
+];
+
+const usersData = [
+  {
+    username: "xcanchal",
+    bio: "Full stack software engineer",
+    avatar: "ipfs://some-avatar.png",
+  },
+  {
+    username: "sdali",
+    bio: "Surrealist painter",
+    avatar: "ipfs://avatar-url.png",
+  },
+];
+
 async function main() {
-  // Hardhat always runs the compile task when running scripts with its command
-  // line interface.
-  //
-  // If this script is run directly using `node` you may want to call compile
-  // manually to make sure everything is compiled
-  // await hre.run('compile');
+  const Categories = await ethers.getContractFactory("Categories");
+  const categories = await Categories.deploy();
+  await categories.deployed();
+  console.log("Categories deployed to:", categories.address);
 
-  // We get the contract to deploy
-  const Greeter = await ethers.getContractFactory("Greeter");
-  const greeter = await Greeter.deploy("Hello, Hardhat!");
+  const Users = await ethers.getContractFactory("Users");
+  const users = await Users.deploy();
+  await users.deployed();
+  console.log("Users deployed to:", users.address);
 
-  await greeter.deployed();
+  const Questions = await ethers.getContractFactory("Questions");
+  const questions = await Questions.deploy(categories.address, users.address);
+  await questions.deployed();
+  console.log("Questions deployed to:", questions.address);
 
-  console.log("Greeter deployed to:", greeter.address);
+  // Create some categories
+  const addTxs = await Promise.all(
+    categoriesData.map(({ name, description }) =>
+      categories.add(name, description)
+    )
+  );
+  await Promise.all(addTxs.map((tx) => tx.wait()));
+  console.log(await categories.list());
+
+  // Create a couple of users
+  const [, signer1, signer2] = await ethers.getSigners();
+  const [user1, user2] = usersData;
+
+  const addUser1Tx = await users
+    .connect(signer1)
+    .add(user1.username, user1.bio, user1.avatar);
+  await addUser1Tx.wait();
+
+  const addUser2Tx = await users
+    .connect(signer2)
+    .add(user2.username, user2.bio, user2.avatar);
+  await addUser2Tx.wait();
+
+  console.log(await users.list());
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
 main().catch((error) => {
   console.error(error);
   process.exitCode = 1;

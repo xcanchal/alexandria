@@ -1,32 +1,27 @@
 # Building Alexandria
 
-The first question that comes to my mind is: how should I structure data? Are there any kind of best-practice design patterns?
+### Contracts and data structures size
 
-### First worries
+### Which layer to use (L1 Ethereum, L2 Matic...)
 
-- Contract and data size
-- How to efficiently look for and retrieve the different data
-- Access level modifiers (data visibility and ownership)
+Pros and cons of using an L2 solution such as Matic over Ethereum:
 
-### Access level modifiers in Solidity
+From a developer perspective:
 
-- Public - Accessible by anyone
-- Private - Accessible by only contracts where they are defined and not by inheriting contracts.
-- Protected - Accessible by only contracts where they are defined and by contracts that inherit them.
-- Internal - Accessible by only other functions of the contract and not by other people or contracts.
-- External - Accessible by only other people or contracts and not by functions.
+When using Ethereum (layer 1), testing is a bit of a pain in the ass. Rinkeby is fast but there aren't many faucets and those that work drip little amounts of $ETH. Ropsten is better in that regard but in my experience, it's too slow validating transactions so not very much efficient for developing.
 
-### Some data structures
+Adding Matic to the wallet networks is pretty easy (EXPLAIN HOW?) and configuring Alchemy and Hardhat for deploying contracts is not different than doing it with Ethereum at all. In terms of transaction validation speed it's quite good and funding the wallet with test tokens was easy too. The first faucet I found dripped me 1 $MATIC in a single transaction, and since the transaction fees are lower, it lasted me long enough to not having to worry for funding again in a considerable period of time.
 
-#### Arrays
+From a user perspective:
 
-pros:
-cons:
+Pros
 
-#### Mappings
+- Lower transaction costs (fees) and transaction validation time.
 
-pros:
-cons:
+Cons
 
-What if we store data in both ways? Is that a good approach?
+- Another "level" of complexity added. They have to to configure a new network and buy $MATIC tokens to operate with.
 
+### How to efficiently store and retrieve the data (arrays, mappings...). Best-practices/design patterns
+
+### Access level modifiers (data visibility and ownership)

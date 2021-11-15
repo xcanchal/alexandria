@@ -25,6 +25,7 @@ contract Categories is Ownable, Validators {
     using Counters for Counters.Counter;
     Counters.Counter private _categoryIds;
     mapping(uint256 => Category) private categoriesById;
+    mapping(string => Category) private categoriesByName;
     Category[] private categories;
 
     constructor() {
@@ -39,6 +40,11 @@ contract Categories is Ownable, Validators {
         minLength(name, 2, string("name"))
         minLength(description, 2, string("description"))
     {
+        require(
+            categoriesByName[name].id == 0,
+            string(abi.encodePacked("Category '", name, "' already exists"))
+        );
+
         uint256 id = _categoryIds.current();
         Category memory category;
         category.id = id;
@@ -49,6 +55,7 @@ contract Categories is Ownable, Validators {
 
         categories.push(category);
         categoriesById[id] = category;
+        categoriesByName[category.name] = category;
         _categoryIds.increment();
 
         emit categoryAdded(category);
