@@ -31,6 +31,7 @@ contract Questions is Ownable, Validators {
     using Counters for Counters.Counter;
     Counters.Counter private _questionIds;
     mapping(uint256 => Question) private questionsById;
+    mapping(uint256 => Question[]) private questionsByCategoryId;
     Question[] private questions;
 
     constructor(address categoriesAddress, address usersAddress) {
@@ -64,7 +65,8 @@ contract Questions is Ownable, Validators {
         question.updatedAt = block.timestamp * 1000;
 
         questions.push(question);
-        questionsById[id] = question;
+        questionsById[question.id] = question;
+        questionsByCategoryId[question.categoryId].push(question);
         _questionIds.increment();
 
         emit questionAdded(question);
@@ -85,5 +87,18 @@ contract Questions is Ownable, Validators {
             revert("Question not found");
         }
         return question;
+    }
+
+    function exists(uint256 id) public view validId(id) returns (bool) {
+        Question memory question = questionsById[id];
+        return question.id > 0;
+    }
+
+    function listByCategoryId(uint256 categoryId)
+        public
+        view
+        returns (Question[] memory)
+    {
+        return questionsByCategoryId[categoryId];
     }
 }

@@ -200,8 +200,7 @@ describe("Questions", () => {
   describe("list()", () => {
     describe("Success cases", () => {
       it("should return an empty question list", async () => {
-        const { categories, users, questions } = await deployContracts();
-        await addUserAndCategory(categories, users);
+        const { questions } = await deployContracts();
         expect(await questions.list()).to.have.length(0);
       });
 
@@ -275,6 +274,80 @@ describe("Questions", () => {
         expect(question.tags).deep.eq(data.tags);
         validateDate(new Date(question.createdAt.toNumber()));
         validateDate(new Date(question.updatedAt.toNumber()));
+      });
+    });
+  });
+
+  describe("exists()", () => {
+    describe("Error cases", () => {
+      it("should throw an error if the id is lte 0", async () => {
+        const { questions } = await deployContracts();
+        let error: any;
+        try {
+          await questions.exists(0);
+        } catch (e: any) {
+          error = e;
+        }
+        expect(error.message).contains("id must be greater than zero");
+      });
+    });
+
+    describe("Success cases", () => {
+      it("should return true if a question exists", async () => {
+        const { questions, categories, users } = await deployContracts();
+        const { username, bio, avatar } = userData;
+        const addUserTx = await users.add(username, bio, avatar);
+        await addUserTx.wait();
+        const { name, description } = categoryData;
+        const addCategoryTx = await categories.add(name, description);
+        await addCategoryTx.wait();
+        const [{ text, categoryId, userId, tags }] = questionsData;
+        const addQuestionTx = await questions.add(
+          text,
+          categoryId,
+          userId,
+          tags
+        );
+        await addQuestionTx.wait();
+        expect(await questions.exists(1)).eq(true);
+      });
+      it("should return false if a question does not exist", async () => {
+        const { questions } = await deployContracts();
+        expect(await questions.exists(5)).eq(false);
+      });
+    });
+  });
+
+  describe("listByCategoryId()", () => {
+    describe("Success cases", () => {
+      it("should return an empty question list", async () => {
+        const { questions } = await deployContracts();
+        expect(await questions.listByCategoryId(10)).to.have.length(0);
+      });
+
+      it("should return a list with existing questions for a category", async () => {
+        const { categories, users, questions } = await deployContracts();
+        await addUserAndCategory(categories, users);
+
+        const addTxs = await Promise.all(
+          questionsData.map(({ text, categoryId, userId, tags }) =>
+            questions.add(text, categoryId, userId, tags)
+          )
+        );
+        await Promise.all(addTxs.map((tx) => tx.wait()));
+
+        const categoryQuestions = await questions.listByCategoryId(1);
+        expect(categoryQuestions).to.have.length(2);
+
+        expect(categoryQuestions[0].id.toNumber()).to.eq(1);
+        expect(categoryQuestions[0].text).eq(questionsData[0].text);
+        expect(categoryQuestions[0].categoryId).eq(questionsData[0].categoryId);
+        expect(categoryQuestions[0].userId).eq(questionsData[0].userId);
+
+        expect(categoryQuestions[1].id.toNumber()).to.eq(2);
+        expect(categoryQuestions[1].text).eq(questionsData[1].text);
+        expect(categoryQuestions[1].categoryId).eq(questionsData[1].categoryId);
+        expect(categoryQuestions[1].userId).eq(questionsData[1].userId);
       });
     });
   });

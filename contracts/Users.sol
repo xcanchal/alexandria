@@ -28,7 +28,8 @@ contract Users is Ownable, Validators {
     using Counters for Counters.Counter;
     Counters.Counter private _userIds;
     mapping(uint256 => User) private usersById;
-    mapping(string => User) private usersByUsername;
+    mapping(string => User) private usersByUsername; // can be deleted if using users by address?
+    mapping(address => User) private usersByAddress;
     User[] private users;
 
     constructor() {
@@ -42,7 +43,9 @@ contract Users is Ownable, Validators {
         string calldata bio,
         string calldata avatar
     ) external minLength(username, 2, string("username")) {
+        // Can be removed in favor of identifying by address?
         require(!existsByUsername(username), "Username already exists");
+        // require(!existsByAddress(username), "This address already has a user");
 
         uint256 id = _userIds.current();
         User memory user;
@@ -58,6 +61,7 @@ contract Users is Ownable, Validators {
         users.push(user);
         usersById[id] = user;
         usersByUsername[user.username] = user;
+        usersByAddress[user.wallet] = user;
         _userIds.increment();
 
         emit userAdded(user);
@@ -80,6 +84,7 @@ contract Users is Ownable, Validators {
         return user.id > 0;
     }
 
+    // Can be deleted if implement existsByAddress?
     function existsByUsername(string calldata username)
         private
         view
@@ -88,6 +93,15 @@ contract Users is Ownable, Validators {
     {
         User memory user = usersByUsername[username];
         return user.id > 0;
+    }
+
+    /* implement and add modifier validAddres(wallet) */
+    function getByAddress(address addr) public view returns (User memory) {
+        User memory user = usersByAddress[addr];
+        if (user.id == 0) {
+            revert("User not found with this address");
+        }
+        return user;
     }
 
     /* function updateBio() {

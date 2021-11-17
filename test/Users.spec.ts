@@ -210,22 +210,13 @@ describe("Users", () => {
     describe("Success cases", () => {
       it("should return true if a user exists", async () => {
         const users = await deployContract();
-        const addTxs = await Promise.all(
-          usersData.map(({ username, bio, avatar }) =>
-            users.add(username, bio, avatar)
-          )
-        );
-        await Promise.all(addTxs.map((tx) => tx.wait()));
+        const [{ username, bio, avatar }] = usersData;
+        const addTx = await users.add(username, bio, avatar);
+        await addTx.wait();
         expect(await users.exists(1)).eq(true);
       });
       it("should return false if a user does not exist", async () => {
         const users = await deployContract();
-        const addTxs = await Promise.all(
-          usersData.map(({ username, bio, avatar }) =>
-            users.add(username, bio, avatar)
-          )
-        );
-        await Promise.all(addTxs.map((tx) => tx.wait()));
         expect(await users.exists(5)).eq(false);
       });
     });
@@ -270,4 +261,44 @@ describe("Users", () => {
       });
     });
   }); */
+
+  describe("getByAddress()", () => {
+    describe("Error cases", () => {
+      /* it("should throw an error if address format is invalid", async () => {
+        const users = await deployContract();
+        let error: any;
+        try {
+          await users.getByAddress("wrong-address");
+        } catch (e: any) {
+          error = e;
+        }
+        expect(error.message).contains(
+          "Invalid format address"
+        );
+      }); */
+      it("should throw a not found error", async () => {
+        const users = await deployContract();
+        const [, signer1, signer2] = await ethers.getSigners();
+        let error: any;
+        try {
+          await users.connect(signer2).getByAddress(signer1.address);
+        } catch (e: any) {
+          error = e;
+        }
+        expect(error.message).to.contain("User not found with this address");
+      });
+    });
+    describe("Success cases", () => {
+      it("should return the user", async () => {
+        const users = await deployContract();
+        const [, signer1, signer2] = await ethers.getSigners();
+        const [{ username, bio, avatar }] = usersData;
+        await users.connect(signer1).add(username, bio, avatar);
+        const user = await users.connect(signer2).getByAddress(signer1.address);
+        expect(user.username).eq(username);
+        expect(user.bio).eq(bio);
+        expect(user.avatar).eq(avatar);
+      });
+    });
+  });
 });
