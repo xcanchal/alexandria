@@ -162,7 +162,7 @@ describe("Users", () => {
         } catch (e: any) {
           error = e;
         }
-        expect(error.message).contains("id must be greater than zero");
+        expect(error.message).contains("invalid id");
       });
 
       it("should return a not found error if category does not exist", async () => {
@@ -203,7 +203,7 @@ describe("Users", () => {
         } catch (e: any) {
           error = e;
         }
-        expect(error.message).contains("id must be greater than zero");
+        expect(error.message).contains("invalid id");
       });
     });
 

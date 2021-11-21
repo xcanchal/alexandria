@@ -5,19 +5,19 @@ import "hardhat/console.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-import "./Categories.sol";
+import "./Topics.sol";
 import "./Users.sol";
 import "./utils/Validators.sol";
 
 contract Questions is Ownable, Validators {
-    Categories private categories;
+    Topics private topics;
     Users private users;
 
     struct Question {
         uint256 id;
         string text;
         uint256 userId;
-        uint256 categoryId;
+        uint256 topicId;
         string[] tags;
         uint256 createdAt;
         uint256 updatedAt;
@@ -30,12 +30,12 @@ contract Questions is Ownable, Validators {
 
     using Counters for Counters.Counter;
     Counters.Counter private _questionIds;
-    mapping(uint256 => Question) private questionsById;
-    mapping(uint256 => Question[]) private questionsByCategoryId;
     Question[] private questions;
+    mapping(uint256 => Question) private questionsById;
+    mapping(uint256 => Question[]) private questionsByTopicId;
 
-    constructor(address categoriesAddress, address usersAddress) {
-        categories = Categories(categoriesAddress);
+    constructor(address topicsAddress, address usersAddress) {
+        topics = Topics(topicsAddress);
         users = Users(usersAddress);
         _questionIds.increment();
     }
@@ -43,13 +43,13 @@ contract Questions is Ownable, Validators {
     event questionAdded(Question question);
 
     function add(
-        string calldata text,
-        uint256 categoryId,
+        string memory text,
+        uint256 topicId,
         uint256 userId,
-        string[] calldata tags
-    ) external onlyOwner minLength(text, 10, string("text")) {
-        if (!categories.exists(categoryId)) {
-            revert("Category does not exist");
+        string[] memory tags
+    ) external lengthBetween(text, 10, 100, string("text")) {
+        if (!topics.exists(topicId)) {
+            revert("Topic does not exist");
         } else if (!users.exists(userId)) {
             revert("User does not exist");
         }
@@ -58,7 +58,7 @@ contract Questions is Ownable, Validators {
         Question memory question;
         question.id = id;
         question.text = text;
-        question.categoryId = categoryId;
+        question.topicId = topicId;
         question.userId = userId;
         question.tags = tags;
         question.createdAt = block.timestamp * 1000;
@@ -66,7 +66,7 @@ contract Questions is Ownable, Validators {
 
         questions.push(question);
         questionsById[question.id] = question;
-        questionsByCategoryId[question.categoryId].push(question);
+        questionsByTopicId[question.topicId].push(question);
         _questionIds.increment();
 
         emit questionAdded(question);
@@ -94,11 +94,11 @@ contract Questions is Ownable, Validators {
         return question.id > 0;
     }
 
-    function listByCategoryId(uint256 categoryId)
+    function listByTopicId(uint256 topicId)
         public
         view
         returns (Question[] memory)
     {
-        return questionsByCategoryId[categoryId];
+        return questionsByTopicId[topicId];
     }
 }

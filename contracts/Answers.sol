@@ -30,9 +30,9 @@ contract Answers is Ownable, Validators {
 
     using Counters for Counters.Counter;
     Counters.Counter private _answerIds;
+    Answer[] private answers;
     mapping(uint256 => Answer) private answersById;
     mapping(uint256 => Answer[]) private answersByQuestionId;
-    Answer[] private answers;
 
     constructor(address questionsAddress, address usersAddress) {
         questions = Questions(questionsAddress);
@@ -41,12 +41,14 @@ contract Answers is Ownable, Validators {
     }
 
     event answerAdded(Answer answer);
+    event answerUpvoted(Answer answer);
+    event answerDownvoted(Answer answer);
 
     function add(
-        string calldata text,
+        string memory text,
         uint256 questionId,
         uint256 userId
-    ) external onlyOwner minLength(text, 2, string("text")) {
+    ) external minLength(text, 2, string("text")) {
         if (!questions.exists(questionId)) {
             revert("Question does not exist");
         } else if (!users.exists(userId)) {
@@ -83,6 +85,7 @@ contract Answers is Ownable, Validators {
         _;
     }
 
+    // Really needed?
     function getById(uint256 id)
         public
         view
@@ -96,16 +99,51 @@ contract Answers is Ownable, Validators {
     function listByQuestionId(uint256 questionId)
         public
         view
+        validId(questionId)
         returns (Answer[] memory)
     {
         return answersByQuestionId[questionId];
     }
 
     function upvote(uint256 id) public validId(id) checkAnswerExists(id) {
+        // What about updating the item in the array? :(
+        // mapping indexByPosition[position] ? is data redundancy a design error? maybe we just need the mapping...
         answersById[id].votes += 1;
+
+        for (uint256 i = 0; i < answersByQuestionId[id].length; i += 1) {
+            if (answersByQuestionId[id][i].id == id) {
+                answersByQuestionId[id][i].votes += 1;
+                emit answerUpvoted(answersByQuestionId[id][i]);
+                break;
+            }
+        }
+
+        for (uint256 i = 0; i < answers.length; i += 1) {
+            if (answers[i].id == id) {
+                answers[i].votes += 1;
+                break;
+            }
+        }
     }
 
     function downvote(uint256 id) public validId(id) checkAnswerExists(id) {
+        // What about updating the item in the array? :(
+        // mapping indexByPosition[position] ? is data redundancy a design error? maybe we just need the mapping...
         answersById[id].votes -= 1;
+
+        for (uint256 i = 0; i < answersByQuestionId[id].length; i += 1) {
+            if (answersByQuestionId[id][i].id == id) {
+                answersByQuestionId[id][i].votes -= 1;
+                emit answerDownvoted(answersByQuestionId[id][i]);
+                break;
+            }
+        }
+
+        for (uint256 i = 0; i < answers.length; i += 1) {
+            if (answers[i].id == id) {
+                answers[i].votes -= 1;
+                break;
+            }
+        }
     }
 }

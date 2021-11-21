@@ -27,10 +27,10 @@ contract Users is Ownable, Validators {
 
     using Counters for Counters.Counter;
     Counters.Counter private _userIds;
+    User[] private users;
     mapping(uint256 => User) private usersById;
     mapping(string => User) private usersByUsername; // can be deleted if using users by address?
     mapping(address => User) private usersByAddress;
-    User[] private users;
 
     constructor() {
         _userIds.increment();
@@ -39,9 +39,9 @@ contract Users is Ownable, Validators {
     event userAdded(User user);
 
     function add(
-        string calldata username,
-        string calldata bio,
-        string calldata avatar
+        string memory username,
+        string memory bio,
+        string memory avatar
     ) external minLength(username, 2, string("username")) {
         // Can be removed in favor of identifying by address?
         require(!existsByUsername(username), "Username already exists");
@@ -85,7 +85,7 @@ contract Users is Ownable, Validators {
     }
 
     // Can be deleted if implement existsByAddress?
-    function existsByUsername(string calldata username)
+    function existsByUsername(string memory username)
         private
         view
         minLength(username, 2, string("username"))
