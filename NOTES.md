@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Alexandria is a global, open, and decentralized knowledge hub. Alexandria is a place where to ask questions and provide answers. A permanent knowledge hub that can't be censored nor taken down where users can ven get rewarded for their contribution to the community.
+Alexandria is a global, open, and decentralized knowledge hub. A place for asking questions and get answers. A permanent knowledge hub that can't be censored nor taken down where users can ven get rewarded for their contribution to the community.
 
 The information in Alexandria is organized in a very simple way. Users can create topics, which then can contain questions and these questions get answers. As simple as that. Users just need to connect their wallets to explore the hub. In order to publish any kind of data, they also have to sign up as users and provide a little info about themselves.
 
@@ -21,8 +21,20 @@ Upgradeable contracts: Separate data and logic in different contracts. One contr
 Proxy contracts: Use delegateCalls to call remote contract code with proxy contract state (sender, addres...).
 
 Diamond pattern: [Read more](https://eip2535diamonds.substack.com/p/introduction-to-the-diamond-standard)
-- From the outside, it appears to be a single contract but in reality, there are different contracts (called facets) for different purposes.
-- The data is stored in the diamond.
+
+"I wanted one storage space for all state variables and one Ethereum address from which I could design and implement all functions without bytecode size limitation. And I wanted all functions to read and write to state variables directly, easily and in the same way. It would also be nice to have optional, seemless upgrade functionality: to be able to replace functions, remove them and add new functionality without needing to redeploy everything. To be able to extend the smart contract system in a consistent, systematic way after it is deployed."
+
+- A diamond is a smart contract. Its Ethereum address is the single address that outside software uses to interact with it.
+
+- Internally a diamond uses a set of contracts called facets for its external functions.
+
+- All state variable storage data is stored in a diamond, not in its facets.
+
+- The external functions of facets can directly read and write data stored in a diamond. This makes facets easy to write and gas efficient.
+
+- A diamond is implemented as a fallback function that uses [delegatecall](https://eip2535diamonds.substack.com/p/understanding-delegatecall-and-how) to route external function calls to facets.
+
+- A diamond often doesn’t have any external functions of its own — it uses facets for external functions which read/write its data.
 
 Some things to avoid:
 
@@ -94,7 +106,7 @@ Cons
 
 ## Conclusion
 
-Things I like about Ethereum:
+Things I like about Solidity:
 
 - Modifiers
 

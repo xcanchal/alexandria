@@ -1,10 +1,10 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const Categories = await ethers.getContractFactory("Categories");
-  const categories = await Categories.deploy();
-  await categories.deployed();
-  console.log("Categories deployed to:", categories.address);
+  const Topics = await ethers.getContractFactory("Topics");
+  const topics = await Topics.deploy();
+  await topics.deployed();
+  console.log("Topics deployed to:", topics.address);
 
   const Users = await ethers.getContractFactory("Users");
   const users = await Users.deploy();
@@ -12,7 +12,7 @@ async function main() {
   console.log("Users deployed to:", users.address);
 
   const Questions = await ethers.getContractFactory("Questions");
-  const questions = await Questions.deploy(categories.address, users.address);
+  const questions = await Questions.deploy(topics.address, users.address);
   await questions.deployed();
   console.log("Questions deployed to:", questions.address);
 
