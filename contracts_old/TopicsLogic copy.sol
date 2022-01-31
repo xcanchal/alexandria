@@ -3,36 +3,11 @@ pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
 
-import "./utils/Validators.sol";
+import "../utils/Validators.sol";
 
-contract Topics is Ownable, Validators {
-    struct Topic {
-        uint256 id;
-        string name;
-        string description;
-        uint256 createdAt;
-        uint256 updatedAt;
-    }
-
-    /* struct TopicStats {
-      int256 questions
-      int256 answers
-      int256 participants
-    } */
-
-    using Counters for Counters.Counter;
-    Counters.Counter private _topicIds;
-    Topic[] private topics;
-    mapping(uint256 => Topic) private topicsById;
-    mapping(string => Topic) private topicsByName;
-
-    constructor() {
-        _topicIds.increment();
-    }
-
-    event topicAdded(Topic topic);
+contract TopicsLogic is Ownable, Validators {
+    constructor() {}
 
     function add(string memory name, string memory description)
         external

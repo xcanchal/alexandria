@@ -78,7 +78,7 @@ async function createPrerequiredData(
   await addQuestionTx.wait();
 }
 
-describe.only("Answers", () => {
+describe("Answers", () => {
   describe("add()", () => {
     describe("Error cases", () => {
       it("should return an error if questionId is invalid", async () => {
