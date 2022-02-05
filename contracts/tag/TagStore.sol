@@ -7,7 +7,19 @@ import "./TagTypes.sol";
 import "./TagLogic.sol";
 
 contract TagStore is Ownable, TagTypes {
+    struct Record {
+        Tag data;
+        uint256 idListPointer;
+    }
+
+    mapping(bytes32 => Record) private records;
+    bytes32[] private idList;
+
     address private logicAddress;
+
+    event TagCreated(Tag tag);
+    event TagUpdated(Tag tag);
+    event TagDeleted(Tag tag);
 
     modifier onlyLogic() {
         require(msg.sender == logicAddress, "403");
@@ -18,39 +30,77 @@ contract TagStore is Ownable, TagTypes {
         logicAddress = _logicAddress;
     }
 
-    function generateId(string memory name) private pure returns (bytes32) {
-        return keccak256(abi.encode(name));
+    function create(Tag memory tag) public onlyLogic returns (bool success) {
+        require(!exists(tag.id), "400");
+
+        idList.push(tag.id);
+        console.log("CREATE");
+        console.log("- id:");
+        console.logBytes32(tag.id);
+        console.log("- idListPointer: %d", idList.length - 1);
+        records[tag.id] = Record({data: tag, idListPointer: idList.length - 1});
+
+        emit TagCreated(tag);
+        return true;
     }
 
-    function add(
-        address caller,
-        string memory name,
-        string memory description
-    ) public onlyLogic returns (Tag memory addedTag) {
-        Tag memory tag;
-        tag.id = generateId(name);
-        tag.name = name;
-        tag.description = description;
-        tag.creator = caller;
-        tag.createdAt = block.timestamp * 1000;
+    function updateDescription(
+        bytes32 id,
+        string memory description,
+        uint256 updatedAt
+    ) public onlyLogic returns (bool success) {
+        console.log("UPDATE");
+        console.log("- id:");
+        console.logBytes32(id);
 
-        tags.push(tag);
-        tagsById[tag.id] = tag;
+        require(exists(id), "404");
 
-        return tag;
+        records[id].data.description = description;
+        records[id].data.updatedAt = updatedAt;
+
+        emit TagUpdated(records[id].data);
+        return true;
     }
 
-    function list() public view onlyLogic returns (Tag[] memory) {
-        return tags;
+    function deleteById(bytes32 id) public onlyLogic returns (bool success) {
+        require(exists(id), "404");
+        Record memory record = records[id];
+
+        uint256 indexToDelete = record.idListPointer;
+        bytes32 idToMove = idList[idList.length - 1];
+        idList[indexToDelete] = idToMove;
+        records[idToMove].idListPointer = indexToDelete;
+        idList.pop();
+
+        emit TagDeleted(record.data);
+        return true;
     }
 
     function getById(bytes32 id) public view onlyLogic returns (Tag memory) {
-        return tagsById[id];
+        if (!exists(id)) revert("404");
+        return records[id].data;
     }
 
-    function exists(string memory name) public view onlyLogic returns (bool) {
-        bytes32 id = generateId(name);
-        Tag memory tag = getById(id);
-        return tag.id == id;
+    function getByIndex(uint256 index)
+        public
+        view
+        onlyLogic
+        returns (Tag memory)
+    {
+        require(index < idList.length, "404");
+        return records[idList[index]].data;
+    }
+
+    function exists(bytes32 id) private view returns (bool) {
+        if (idList.length == 0) return false;
+        /* console.log("id:");
+        console.logBytes32(id);
+        console.log("idList[records[id].idListPointer]:");
+        console.logBytes32(idList[records[id].idListPointer]); */
+        return idList[records[id].idListPointer] == id;
+    }
+
+    function count() public view onlyLogic returns (uint256) {
+        return idList.length;
     }
 }

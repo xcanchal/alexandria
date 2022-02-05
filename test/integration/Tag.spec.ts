@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { TagStore, TagLogic, Alexandria } from "../../typechain";
-import { deployAlexandria, deployTagLogic, deployTagStore } from "../utils";
+import { deployAlexandria, deployTagLogic, deployTagStore } from "../../utils";
 
 describe("Tag", () => {
   let tagStore: TagStore;
@@ -9,114 +9,97 @@ describe("Tag", () => {
   let alexandria: Alexandria;
 
   beforeEach(async () => {
+    // deploy contracts
     tagStore = await deployTagStore();
     tagLogic = await deployTagLogic(tagStore.address);
-    alexandria = await deployAlexandria();
+    alexandria = await deployAlexandria(tagLogic.address);
+    // update references
+    await tagStore.upgradeLogic(tagLogic.address);
+    await tagLogic.upgradeAlexandria(alexandria.address);
+    await alexandria.upgradeTagLogic(tagLogic.address);
   });
 
-  describe("addTag()", () => {
+  describe("Create tag", () => {
     describe("Error cases", () => {
-      it("should throw error if no TagLogic address set", async () => {
+      it("should throw a 400 error if tag already exists", async () => {
         let error = null;
         try {
-          await alexandria.addTag("blockchain", "all about blockchain");
-        } catch (e: any) {
-          error = e;
-        }
-        expect(error.message).to.contain(
-          "Transaction reverted: function call to a non-contract account"
-        );
-      });
-
-      it("should throw error if tag already exists", async () => {
-        await tagStore.upgradeLogic(tagLogic.address);
-        await tagLogic.upgradeAlexandria(alexandria.address);
-        await alexandria.upgradeTagLogic(tagLogic.address);
-
-        let error = null;
-        const name = "blockchain";
-        try {
-          await alexandria.addTag(name, "all about blockchain");
+          await alexandria.createTag("blockchain", "all about blockchain");
         } catch (e: any) {
           error = e;
         }
         expect(error).to.eq(null);
         try {
-          await alexandria.addTag(name, "blockchain etc");
+          await alexandria.createTag("blockchain", "blockchain and web3");
         } catch (e: any) {
           error = e;
         }
-        console.log(error.message);
-        expect(error.message).to.contain(`Tag '${name}' already exists`);
+        expect(error.message).contains("400");
       });
     });
-
     describe("Success cases", () => {
-      beforeEach(async () => {
-        await tagStore.upgradeLogic(tagLogic.address);
-        await tagLogic.upgradeAlexandria(alexandria.address);
-        await alexandria.upgradeTagLogic(tagLogic.address);
-      });
-
-      it("should add a new tag", async () => {
-        const name = "blockchain";
-        const description = "all about blockchain";
-        await alexandria.addTag(name, description);
-        const tags = await alexandria.listTags();
-        expect(tags.length).to.eq(1);
-        expect(tags[0].name).to.eq(name);
-        expect(tags[0].description).to.eq(description);
-      });
-
-      it("should emit a tagAdded event", (done) => {
+      it.only("should create a tag and emit TagCreated event", (done) => {
         (async () => {
           const [signer] = await ethers.getSigners();
           const name = "blockchain";
           const description = "all about blockchain";
 
-          tagLogic.on("tagAdded", (tag) => {
+          tagStore.on("TagCreated", (tag) => {
             expect(tag).to.not.eq(null);
+            expect(tag.id).to.eq(ethers.utils.id(name));
             expect(tag.name).to.eq(name);
             expect(tag.description).to.eq(description);
             expect(tag.creator).to.eq(signer.address);
             expect(new Date(tag.createdAt.toNumber())).to.be.instanceOf(Date);
+            expect(new Date(tag.updatedAt.toNumber())).to.be.instanceOf(Date);
+            expect(tag.createdAt).to.eq(tag.updatedAt);
             done();
           });
 
-          await alexandria.addTag(name, description);
+          const addTx = await alexandria.createTag(name, description);
+          await addTx.wait();
         })();
       });
     });
   });
 
-  describe("listTags()", () => {
-    describe("Error cases", () => {
-      it("should throw error if no TagLogic address set", async () => {
-        let error = null;
-        try {
-          await alexandria.listTags();
-        } catch (e: any) {
-          error = e;
-        }
-        expect(error.message).to.contain(
-          "Transaction reverted: function call to a non-contract account"
-        );
-      });
-    });
-
+  describe("Update tag description", () => {
+    /* describe("Error cases", () => {
+      it("should return a 404 error if tag does not exist", async () => { });
+    }); */
     describe("Success cases", () => {
-      it("should list existing tags", async () => {
-        await tagStore.upgradeLogic(tagLogic.address);
-        await tagLogic.upgradeAlexandria(alexandria.address);
-        await alexandria.upgradeTagLogic(tagLogic.address);
+      it("should update the tag description and emit TagUpdated event", (done) => {
+        (async () => {
+          const [signer] = await ethers.getSigners();
 
-        await alexandria.addTag("blockchain", "all about blockchain");
-        await alexandria.addTag("ethereum", "talk about Ethereum");
-        const tags = await alexandria.listTags();
+          const createTx = await alexandria.createTag("pets", "all about pets");
+          await createTx.wait();
 
-        expect(tags.length).to.eq(2);
-        expect(tags[0].name).to.eq("blockchain");
-        expect(tags[1].name).to.eq("ethereum");
+          const name = "blockchain";
+          const create2Tx = await alexandria.createTag(
+            name,
+            "all about blockchain"
+          );
+          await create2Tx.wait();
+
+          const newDescription = "blockchain and web3";
+          const id = ethers.utils.id(name);
+          tagStore.on("TagUpdated", (tag) => {
+            expect(tag.id).to.eq(id);
+            expect(tag.name).to.eq(name);
+            expect(tag.description).to.eq(newDescription);
+            expect(tag.creator).to.eq(signer.address);
+            expect(new Date(tag.updatedAt.toNumber())).to.be.instanceOf(Date);
+            expect(tag.updatedAt).to.be.greaterThan(tag.createdAt);
+            done();
+          });
+
+          const updateTx = await alexandria.updateTagDescription(
+            id,
+            newDescription
+          );
+          await updateTx.wait();
+        })();
       });
     });
   });

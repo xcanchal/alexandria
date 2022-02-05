@@ -1,9 +1,5 @@
 import { ethers } from "hardhat";
-import {
-  deployAlexandria,
-  deployTagStore,
-  deployTagLogic,
-} from "../test/utils";
+import { deployAlexandria, deployTagStore, deployTagLogic } from "../utils";
 
 async function main() {
   // Deploy contracts
@@ -13,7 +9,7 @@ async function main() {
   const tagLogic = await deployTagLogic(tagStore.address);
   console.log("TagLogic deployed to:", tagLogic.address);
 
-  const alexandria = await deployAlexandria();
+  const alexandria = await deployAlexandria(tagLogic.address);
   console.log("Alexandria deployed to:", alexandria.address);
 
   // Upgrade references

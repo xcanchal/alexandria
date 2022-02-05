@@ -23,20 +23,55 @@ contract TagLogic is Ownable, TagTypes {
         alexandriaAddr = _alexandriaAddr;
     }
 
-    function add(
+    function generateId(string memory name) private pure returns (bytes32) {
+        return keccak256(abi.encode(name));
+    }
+
+    function create(
         address caller,
         string memory name,
         string memory description
-    ) public onlyAlexandria {
-        require(
-            store.exists(name) == false,
-            string(abi.encodePacked("Tag '", name, "' already exists"))
-        );
-        Tag memory tag = store.add(caller, name, description);
-        emit tagAdded(tag);
+    ) public onlyAlexandria returns (bool success) {
+        return
+            store.create(
+                Tag({
+                    id: generateId(name),
+                    name: name,
+                    description: description,
+                    creator: caller,
+                    createdAt: block.timestamp * 1000,
+                    updatedAt: block.timestamp * 1000
+                })
+            );
     }
 
-    function list() public view onlyAlexandria returns (Tag[] memory tags) {
-        return store.list();
+    function updateDescription(bytes32 id, string memory description)
+        public
+        onlyAlexandria
+        returns (bool success)
+    {
+        return store.updateDescription(id, description, block.timestamp * 1000);
+    }
+
+    function getById(bytes32 id)
+        public
+        view
+        onlyAlexandria
+        returns (Tag memory)
+    {
+        return store.getById(id);
+    }
+
+    function getByIndex(uint256 index)
+        public
+        view
+        onlyAlexandria
+        returns (Tag memory)
+    {
+        return store.getByIndex(index);
+    }
+
+    function deleteById(bytes32 id) public onlyAlexandria {
+        store.deleteById(id);
     }
 }

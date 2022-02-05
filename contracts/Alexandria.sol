@@ -9,15 +9,33 @@ import "./tag/TagLogic.sol";
 contract Alexandria is Ownable, TagTypes {
     TagLogic private tagLogic;
 
+    constructor(address _tagLogicAddr) {
+        tagLogic = TagLogic(_tagLogicAddr);
+    }
+
     function upgradeTagLogic(address _tagLogicAddr) public onlyOwner {
         tagLogic = TagLogic(_tagLogicAddr);
     }
 
-    function addTag(string memory name, string memory description) public {
-        tagLogic.add(msg.sender, name, description);
+    function createTag(string memory name, string memory description) public {
+        tagLogic.create(msg.sender, name, description);
     }
 
-    function listTags() public view returns (Tag[] memory tags) {
-        return tagLogic.list();
+    function updateTagDescription(bytes32 id, string memory description)
+        public
+    {
+        tagLogic.updateDescription(id, description);
+    }
+
+    function getById(bytes32 id) public view returns (Tag memory) {
+        return tagLogic.getById(id);
+    }
+
+    function getByIndex(uint256 index) public view returns (Tag memory) {
+        return tagLogic.getByIndex(index);
+    }
+
+    function deleteById(bytes32 id) public {
+        tagLogic.deleteById(id);
     }
 }
