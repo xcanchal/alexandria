@@ -1,7 +1,12 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { TagStore, TagLogic, Alexandria } from "../../typechain";
-import { deployAlexandria, deployTagLogic, deployTagStore } from "../../utils";
+import { generateId } from "../utils";
+import {
+  deployAlexandria,
+  deployTagLogic,
+  deployTagStore,
+} from "../../utils";
 
 describe("Tag", () => {
   let tagStore: TagStore;
@@ -38,21 +43,23 @@ describe("Tag", () => {
       });
     });
     describe("Success cases", () => {
-      it.only("should create a tag and emit TagCreated event", (done) => {
+      it("should create a tag and emit TagCreated event", (done) => {
         (async () => {
           const [signer] = await ethers.getSigners();
           const name = "blockchain";
           const description = "all about blockchain";
 
+          const id = generateId(["string"], [name]);
+
           tagStore.on("TagCreated", (tag) => {
             expect(tag).to.not.eq(null);
-            expect(tag.id).to.eq(ethers.utils.id(name));
+            expect(tag.id).to.eq(id);
             expect(tag.name).to.eq(name);
             expect(tag.description).to.eq(description);
             expect(tag.creator).to.eq(signer.address);
             expect(new Date(tag.createdAt.toNumber())).to.be.instanceOf(Date);
             expect(new Date(tag.updatedAt.toNumber())).to.be.instanceOf(Date);
-            expect(tag.createdAt).to.eq(tag.updatedAt);
+            expect(tag.createdAt.toNumber()).to.eq(tag.updatedAt.toNumber());
             done();
           });
 
@@ -64,17 +71,27 @@ describe("Tag", () => {
   });
 
   describe("Update tag description", () => {
-    /* describe("Error cases", () => {
-      it("should return a 404 error if tag does not exist", async () => { });
-    }); */
+    describe("Error cases", () => {
+      it("should return a 404 error if tag does not exist", async () => {
+        let error = null;
+        try {
+          const updateTx = await alexandria.updateTagDescription(
+            generateId(["string"], ["unexisting-tag"]),
+            "new description"
+          );
+          await updateTx.wait();
+        } catch (e: any) {
+          error = e;
+        }
+        expect(error.message).contains("404");
+      });
+    });
     describe("Success cases", () => {
       it("should update the tag description and emit TagUpdated event", (done) => {
         (async () => {
           const [signer] = await ethers.getSigners();
-
           const createTx = await alexandria.createTag("pets", "all about pets");
           await createTx.wait();
-
           const name = "blockchain";
           const create2Tx = await alexandria.createTag(
             name,
@@ -83,14 +100,17 @@ describe("Tag", () => {
           await create2Tx.wait();
 
           const newDescription = "blockchain and web3";
-          const id = ethers.utils.id(name);
+          const id = generateId(["string"], [name]);
+
           tagStore.on("TagUpdated", (tag) => {
             expect(tag.id).to.eq(id);
             expect(tag.name).to.eq(name);
             expect(tag.description).to.eq(newDescription);
             expect(tag.creator).to.eq(signer.address);
             expect(new Date(tag.updatedAt.toNumber())).to.be.instanceOf(Date);
-            expect(tag.updatedAt).to.be.greaterThan(tag.createdAt);
+            expect(tag.updatedAt.toNumber()).to.be.greaterThan(
+              tag.createdAt.toNumber()
+            );
             done();
           });
 

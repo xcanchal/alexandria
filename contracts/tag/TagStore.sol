@@ -34,10 +34,6 @@ contract TagStore is Ownable, TagTypes {
         require(!exists(tag.id), "400");
 
         idList.push(tag.id);
-        console.log("CREATE");
-        console.log("- id:");
-        console.logBytes32(tag.id);
-        console.log("- idListPointer: %d", idList.length - 1);
         records[tag.id] = Record({data: tag, idListPointer: idList.length - 1});
 
         emit TagCreated(tag);
@@ -49,10 +45,6 @@ contract TagStore is Ownable, TagTypes {
         string memory description,
         uint256 updatedAt
     ) public onlyLogic returns (bool success) {
-        console.log("UPDATE");
-        console.log("- id:");
-        console.logBytes32(id);
-
         require(exists(id), "404");
 
         records[id].data.description = description;
@@ -93,10 +85,6 @@ contract TagStore is Ownable, TagTypes {
 
     function exists(bytes32 id) private view returns (bool) {
         if (idList.length == 0) return false;
-        /* console.log("id:");
-        console.logBytes32(id);
-        console.log("idList[records[id].idListPointer]:");
-        console.logBytes32(idList[records[id].idListPointer]); */
         return idList[records[id].idListPointer] == id;
     }
 
