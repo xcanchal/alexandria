@@ -1,8 +1,8 @@
-import { ethers } from "hardhat";
 import { deployAlexandria, deployTagStore, deployTagLogic } from "../utils";
 
 async function main() {
   // Deploy contracts
+
   const tagStore = await deployTagStore();
   console.log("TagStore deployed to:", tagStore.address);
 
@@ -13,14 +13,18 @@ async function main() {
   console.log("Alexandria deployed to:", alexandria.address);
 
   // Upgrade references
-  await alexandria.upgradeTagLogic(tagLogic.address);
-  console.log("Alexandria's tagLogic set");
 
-  await tagLogic.upgradeAlexandria(alexandria.address);
-  console.log("TagLogic's Alexandria set");
+  const upgradeTx1 = await tagStore.upgradeLogic(tagLogic.address);
+  await upgradeTx1.wait();
+  console.log("TagLogic address set in TagStore");
 
-  await tagStore.upgradeLogic(tagLogic.address);
-  console.log("TagLogic's TagStore set");
+  const upgradeTx2 = await tagLogic.upgradeAlexandria(alexandria.address);
+  await upgradeTx2.wait();
+  console.log("Alexandria address set in TagLogic");
+
+  const upgradeTx3 = await alexandria.upgradeTagLogic(tagLogic.address);
+  await upgradeTx3.wait();
+  console.log("TagLogic address set in Alexandria");
 }
 
 main().catch((error) => {

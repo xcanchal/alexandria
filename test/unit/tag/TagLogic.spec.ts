@@ -129,4 +129,19 @@ describe("TagLogic", () => {
       });
     });
   });
+
+  describe("count()", () => {
+    describe("Error cases", () => {
+      it("should throw 403 error if not called by Alexandria", async () => {
+        let error = null;
+        await tagLogic.upgradeAlexandria(alexandria.address);
+        try {
+          await tagLogic.count();
+        } catch (e: any) {
+          error = e;
+        }
+        expect(error.message).to.contain("403");
+      });
+    });
+  });
 });

@@ -74,4 +74,8 @@ contract TagLogic is Ownable, TagTypes {
     function deleteById(bytes32 id) public onlyAlexandria {
         store.deleteById(id);
     }
+
+    function count() public view onlyAlexandria returns (uint256) {
+        return store.count();
+    }
 }

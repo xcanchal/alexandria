@@ -27,15 +27,19 @@ contract Alexandria is Ownable, TagTypes {
         tagLogic.updateDescription(id, description);
     }
 
-    function getById(bytes32 id) public view returns (Tag memory) {
+    function getTagById(bytes32 id) public view returns (Tag memory) {
         return tagLogic.getById(id);
     }
 
-    function getByIndex(uint256 index) public view returns (Tag memory) {
+    function getTagByIndex(uint256 index) public view returns (Tag memory) {
         return tagLogic.getByIndex(index);
     }
 
-    function deleteById(bytes32 id) public {
+    function deleteTagById(bytes32 id) public {
         tagLogic.deleteById(id);
+    }
+
+    function countTags() public view returns (uint256) {
+        return tagLogic.count();
     }
 }

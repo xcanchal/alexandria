@@ -18,7 +18,7 @@ async function main() {
     signer
   );
   await alexandria.upgradeTagLogic(tagLogic.address);
-  console.log("Updated TagLogic reference in Alexandria");
+  console.log("Updated TagLogic reference in Alexandria", tagLogic.address);
 
   const tagStoreAbi = ["function upgradeLogic(address _logicAddress) public"];
   const tagStore = new ethers.Contract(
@@ -27,7 +27,7 @@ async function main() {
     signer
   );
   await tagStore.upgradeLogic(tagLogic.address);
-  console.log("Updated TagLogic reference in TagStore");
+  console.log("Updated TagLogic reference in TagStore", tagLogic.address);
 }
 
 main().catch((error) => {

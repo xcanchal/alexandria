@@ -1,9 +1,10 @@
 import hre, { ethers } from "hardhat";
 
 export const deployedAddresses = {
-  tagStore: "0x45B971e07794f01A8bFcB77527e4296baE04dB4e",
-  tagLogic: "0x4b465d9dD1E7Db1a0195Fb387362e0618edA818B",
-  alexandria: "0xb327C5EC72aCc647b1c676747B2ccE10d2481A81",
+  // rinkeby
+  tagStore: "0x61a41c69a69173a8556B49f39549f2737f24C504",
+  tagLogic: "0xEbCA289Aea2119d5dc97C766fd7Dd46EdFc21e70",
+  alexandria: "0x12159Bb06B1cBDe6EbA0F420b3Fdbf01fBfB414E",
 };
 
 export async function deployAlexandria(tagLogicAddr: string) {
@@ -27,9 +28,9 @@ export async function deployTagLogic(tagStoreAddr: string) {
   return tagLogic;
 }
 
-export async function impersonateAccount(address: string) {
+/* export async function impersonateAccount(address: string) {
   await hre.network.provider.request({
     method: "hardhat_impersonateAccount",
     params: [address],
   });
-}
+} */

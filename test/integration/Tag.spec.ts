@@ -123,4 +123,111 @@ describe("Tag", () => {
       });
     });
   });
+
+  describe("Get tag by id", () => {
+    describe("Error cases", () => {
+      it("should return a 404 error if tag does not exist", async () => {
+        let error = null;
+        try {
+          await alexandria.getTagById(
+            generateId(["string"], ["unexisting-tag"])
+          );
+        } catch (e: any) {
+          error = e;
+        }
+        expect(error.message).contains("404");
+      });
+    });
+    describe("Success cases", () => {
+      it("should return the existing tag", async () => {
+        const name = "pets";
+        const description = "all about pets";
+
+        const createTx = await alexandria.createTag(name, description);
+        await createTx.wait();
+
+        const id = generateId(["string"], [name]);
+
+        const tag = await alexandria.getTagById(id);
+        expect(tag.id).to.eq(id);
+        expect(tag.name).to.eq(name);
+        expect(tag.description).to.eq(description);
+      });
+    });
+  });
+
+  describe("Get tag by index", () => {
+    describe("Error cases", () => {
+      it("should return a 404 error if tag does not exist", async () => {
+        let error = null;
+        try {
+          await alexandria.getTagByIndex(0);
+        } catch (e: any) {
+          error = e;
+        }
+        expect(error.message).contains("404");
+      });
+    });
+    describe("Success cases", () => {
+      it("should return the existing tag", async () => {
+        const name = "sports";
+        const description = "all about sports";
+
+        const createTx = await alexandria.createTag(name, description);
+        await createTx.wait();
+
+        const id = generateId(["string"], [name]);
+
+        const tag = await alexandria.getTagByIndex(0);
+        expect(tag.id).to.eq(id);
+        expect(tag.name).to.eq(name);
+        expect(tag.description).to.eq(description);
+      });
+    });
+  });
+
+  describe("Delete tag by id", () => {
+    describe("Error cases", () => {
+      it("should return a 404 error if tag does not exist", async () => {
+        let error = null;
+        try {
+          await alexandria.deleteTagById(
+            generateId(["string"], ["unexisting-tag"])
+          );
+        } catch (e: any) {
+          error = e;
+        }
+        expect(error.message).contains("404");
+      });
+    });
+    describe("Success cases", () => {
+      it("should delete the tag", async () => {
+        let error = null;
+        const createTx = await alexandria.createTag("pets", "all about pets");
+        await createTx.wait();
+
+        const id = generateId(["string"], ["pets"]);
+        await alexandria.deleteTagById(id);
+
+        try {
+          await alexandria.getTagById(id);
+        } catch (e: any) {
+          error = e;
+        }
+        expect(error.message).contains("404");
+      });
+    });
+  });
+
+  describe("Count tags", () => {
+    describe("Success cases", () => {
+      it("should return the number of existing tags", async () => {
+        let count = await alexandria.countTags();
+        expect(count).to.eq(0);
+        await alexandria.createTag("pets", "all about pets");
+        count = await alexandria.countTags();
+        expect(count).to.eq(1);
+      });
+    });
+  });
 });
