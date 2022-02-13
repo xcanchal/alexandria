@@ -54,7 +54,11 @@ contract TagStore is Ownable, TagTypes {
         return true;
     }
 
-    function deleteById(bytes32 id) public onlyLogic returns (bool success) {
+    function deleteById(bytes32 id, uint256 updatedAt)
+        public
+        onlyLogic
+        returns (bool success)
+    {
         require(exists(id), "404");
         Record memory record = records[id];
 
@@ -62,6 +66,8 @@ contract TagStore is Ownable, TagTypes {
         bytes32 idToMove = idList[idList.length - 1];
         idList[indexToDelete] = idToMove;
         records[idToMove].idListPointer = indexToDelete;
+        records[idToMove].data.deleted = true;
+        records[idToMove].data.updatedAt = updatedAt;
         idList.pop();
 
         emit TagDeleted(record.data);
