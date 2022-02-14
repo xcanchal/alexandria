@@ -6,4 +6,6 @@ typechain
 
 #Hardhat files
 cache
-artifacts
+
+# macOS
+.DS_Store

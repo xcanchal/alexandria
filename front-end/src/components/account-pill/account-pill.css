@@ -1,0 +1,20 @@
+.account-pill {
+  display: flex;
+  align-items: center;
+  position: fixed;
+  right: 16px;
+  top: 16px;
+  z-index: 1;
+  padding: 16px 24px;
+  border-radius: 8px;
+  box-shadow: 0 5px 20px 0 rgb(0 0 0 / 15%);
+  background-color: white;
+}
+
+.account-pill .wallet {
+  margin: 0;
+}
+
+.account-pill .wallet a {
+  display: block;
+}

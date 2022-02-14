@@ -1,0 +1,38 @@
+.answer {
+  display: flex;
+}
+
+.answer .votes {
+  display: flex;
+  flex-direction: column;
+  width: 80px;
+  justify-content: center;
+  align-items: center;
+}
+
+.answer .upvote, .votes, .answer .downvote {
+  font-size: 28px;
+}
+.answer .upvote, .answer .downvote {
+  cursor: pointer;
+}
+
+.answer .content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
+  flex: 1;
+}
+
+.answer .tip-btn {
+  cursor: pointer;
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  display: none;
+}
+
+.answer:hover .tip-btn {
+  display: flex;
+}
