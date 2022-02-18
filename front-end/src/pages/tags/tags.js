@@ -9,29 +9,23 @@ import AccountPill from '../../components/account-pill';
 import { getContract, contracts } from '../../utils/contracts';
 import './tags.css';
 
-const GET_LATEST_TAGS = gql`
-  query {
-    tags(
-      orderBy: createdAt
-      orderDirection: desc
-      first: 10
-    ) {
-      id
-      name
-      description
-      creator
-      createdAt
+const GET_TAGS_PAGE = gql`
+    query Feed($offset: Int, $limit: Int){
+      tags(
+        orderBy: createdAt
+        orderDirection: desc
+        limit: 10
+        #offset: $offset
+        #limit: $limit
+      ) {
+        id
+        name
+        description
+        creator
+        createdAt
+      }
     }
-  }
-`
-
-/* const SEARCH_TAGS = gql`
-  query {
-    searchTags(text: "") {
-
-    }
-  }
-`; */
+  `
 
 const TagsPage = () => {
   const navigate = useNavigate();
@@ -40,13 +34,17 @@ const TagsPage = () => {
   const [loadingCreateTag, setLoadingCreateTag] = useState(false);
   const [search, setSearch] = useState('');
   const alexandria = useMemo(() => getContract(contracts.alexandria.name), []);
+  // const [page, setPage] = useState(0);
 
   const {
     loading: loadingTags,
     error,
     data: tagsData,
-    refetch: refreshTags,
-  } = useQuery(GET_LATEST_TAGS);
+    refetch: refetchTags,
+    // fetchMore: fetchMoreTags
+  } = useQuery(GET_TAGS_PAGE, {
+    // variables: { limit: 1, offset: page * 1 },
+  });
 
   const { tags = [] } = tagsData ?? {};
 
@@ -56,9 +54,22 @@ const TagsPage = () => {
       setLoadingCreateTag(true);
       await addTx.wait();
       setLoadingCreateTag(false);
-      refreshTags();
+      refetchTags();
     }
-  }, [alexandria, tag, refreshTags, setLoadingCreateTag]);
+  }, [alexandria, tag, refetchTags, setLoadingCreateTag]);
+
+  /* useEffect(() => {
+    fetchMoreTags({
+      query: GET_TAGS_PAGE,
+      variables: { limit: 1, offset: page * 1 },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        if (!fetchMoreResult) return prev;
+        return Object.assign({}, prev, {
+          feed: [...prev.feed, ...fetchMoreResult.feed]
+        });
+      }
+    });
+  }, [page, fetchMoreTags]); */
 
   console.log({ loadingTags, tags, error });
 
@@ -83,6 +94,7 @@ const TagsPage = () => {
                 </div>
               ))}
             </div>
+            {/* <button onClick={() => setPage(page + 1)}>Load more</button> */}
           </div>
         ) : (
           <p>{loadingTags ? 'Loading...' : 'No tags created yet.'}</p>
@@ -114,7 +126,7 @@ const TagsPage = () => {
             )}
           </div>
         ) : (
-          <p>Can't find a particular tag? <b>Connect your wallet</b> and you will be able to submit one</p>
+          <p>Can't find a particular tag? <b>Connect your wallet</b> and you will be able to submit a new one</p>
         )}
         <AccountPill />
       </Layout>

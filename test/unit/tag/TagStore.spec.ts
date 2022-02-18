@@ -52,8 +52,7 @@ describe("TagStore", () => {
             name: "blockchain",
             description: "all about blockchain",
             creator: signer.address,
-            createdAt: Date.now(),
-            updatedAt: Date.now(),
+            deleted: false,
           });
         } catch (e: any) {
           error = e;
@@ -70,8 +69,7 @@ describe("TagStore", () => {
         try {
           await tagStore.updateDescription(
             ethers.utils.id("blockchain"),
-            "all about blockchain and web3",
-            Date.now()
+            "all about blockchain and web3"
           );
         } catch (e: any) {
           error = e;

@@ -57,9 +57,6 @@ describe("Tag", () => {
             expect(tag.name).to.eq(name);
             expect(tag.description).to.eq(description);
             expect(tag.creator).to.eq(signer.address);
-            expect(new Date(tag.createdAt.toNumber())).to.be.instanceOf(Date);
-            expect(new Date(tag.updatedAt.toNumber())).to.be.instanceOf(Date);
-            expect(tag.createdAt.toNumber()).to.eq(tag.updatedAt.toNumber());
             done();
           });
 
@@ -107,10 +104,6 @@ describe("Tag", () => {
             expect(tag.name).to.eq(name);
             expect(tag.description).to.eq(newDescription);
             expect(tag.creator).to.eq(signer.address);
-            expect(new Date(tag.updatedAt.toNumber())).to.be.instanceOf(Date);
-            expect(tag.updatedAt.toNumber()).to.be.greaterThan(
-              tag.createdAt.toNumber()
-            );
             done();
           });
 

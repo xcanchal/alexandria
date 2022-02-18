@@ -39,9 +39,7 @@ contract TagLogic is Ownable, TagTypes {
                     name: name,
                     description: description,
                     creator: caller,
-                    deleted: false,
-                    createdAt: block.timestamp * 1000,
-                    updatedAt: block.timestamp * 1000
+                    deleted: false
                 })
             );
     }
@@ -51,7 +49,7 @@ contract TagLogic is Ownable, TagTypes {
         onlyAlexandria
         returns (bool success)
     {
-        return store.updateDescription(id, description, block.timestamp * 1000);
+        return store.updateDescription(id, description);
     }
 
     function getById(bytes32 id)
@@ -73,7 +71,7 @@ contract TagLogic is Ownable, TagTypes {
     }
 
     function deleteById(bytes32 id) public onlyAlexandria {
-        store.deleteById(id, block.timestamp * 1000);
+        store.deleteById(id);
     }
 
     function count() public view onlyAlexandria returns (uint256) {

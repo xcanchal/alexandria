@@ -8,7 +8,5 @@ abstract contract TagTypes {
         string description; // 1..500
         bool deleted;
         address creator;
-        uint256 createdAt;
-        uint256 updatedAt;
     }
 }
