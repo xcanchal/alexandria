@@ -5,7 +5,7 @@ import Alexandria from '../abis/Alexandria.json';
 export const contracts = {
   alexandria: {
     name: 'alexandria',
-    address: '0xf48bCd3688dbc1A7757481313C10bc5e4548D464',
+    address: '0x443D2003608908BE4DAA6De38b33Eaf60C7D8B77',
     abi: Alexandria.abi,
   },
 };

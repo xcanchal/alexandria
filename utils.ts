@@ -2,9 +2,9 @@ import hre, { ethers } from "hardhat";
 
 export const deployedAddresses = {
   // rinkeby
-  tagStore: "0x118FDeA4400CA0512571d2c1EcB082C0a9A7dB3f",
-  tagLogic: "0x5B5BEec44CBCBC4EDb7f422969f6067c59255d67",
-  alexandria: "0xf48bCd3688dbc1A7757481313C10bc5e4548D464",
+  tagStore: "0xd7e452De4012a4a2003FD096779a903568A762fd",
+  tagLogic: "0x137875b947B50431A814c3aF1D92fdA928E472af",
+  alexandria: "0x443D2003608908BE4DAA6De38b33Eaf60C7D8B77",
 };
 
 export async function deployAlexandria(tagLogicAddr: string) {

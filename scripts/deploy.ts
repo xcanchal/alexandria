@@ -1,8 +1,14 @@
+import { ethers } from "hardhat";
 import { deployAlexandria, deployTagStore, deployTagLogic } from "../utils";
 
-async function main() {
-  // Deploy contracts
+function upgradeLogicInAlexandria() {
 
+}
+
+async function main() {
+  const [signer] = await ethers.getSigners();
+
+  // Deploy contracts
   const tagStore = await deployTagStore();
   console.log("TagStore deployed to:", tagStore.address);
 
@@ -14,17 +20,29 @@ async function main() {
 
   // Upgrade references
 
-  const upgradeTx1 = await tagStore.upgradeLogic(tagLogic.address);
-  await upgradeTx1.wait();
-  console.log("TagLogic address set in TagStore");
+  const tagStoreInstance = new ethers.Contract(
+    tagStore.address,
+    ["function upgradeLogic(address _logicAddress) public"],
+    signer
+  );
+  await tagStoreInstance.upgradeLogic(tagLogic.address);
+  console.log("Updated TagLogic reference in TagStore", tagLogic.address);
 
-  const upgradeTx2 = await tagLogic.upgradeAlexandria(alexandria.address);
-  await upgradeTx2.wait();
-  console.log("Alexandria address set in TagLogic");
+  const tagLogicInstance = new ethers.Contract(
+    tagLogic.address,
+    ["function upgradeAlexandria(address _alexandriaAddr) public"], // used abi
+    signer
+  );
+  await tagLogicInstance.upgradeAlexandria(alexandria.address);
+  console.log("Updated Alexandria reference in TagLogic");
 
-  const upgradeTx3 = await alexandria.upgradeTagLogic(tagLogic.address);
-  await upgradeTx3.wait();
-  console.log("TagLogic address set in Alexandria");
+  const alexandriaInstance = new ethers.Contract(
+    alexandria.address,
+    ["function upgradeTagLogic(address _tagLogicAddr) public"],
+    signer
+  );
+  await alexandriaInstance.upgradeTagLogic(tagLogic.address);
+  console.log("Updated TagLogic reference in Alexandria", tagLogic.address);
 }
 
 main().catch((error) => {

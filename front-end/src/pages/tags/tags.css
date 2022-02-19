@@ -27,6 +27,7 @@
   align-items: flex-start;
   cursor: pointer;
   padding: 20px 0;
+  position: relative;
 }
 
 .tags .tag .name {
@@ -39,6 +40,10 @@
 
 .tags .tag:hover .name {
   color: blue;
+}
+
+.tags .tag:hover .tag-actions {
+  display: block;
 }
 
 .unexisting-tag {
@@ -58,4 +63,18 @@
 
 .tag .created-at {
   color: grey;
+}
+
+.tags .tag-actions {
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 0;
+  display: none;
+}
+
+.tags .tag-actions li {
+  display: inline-block;
 }
