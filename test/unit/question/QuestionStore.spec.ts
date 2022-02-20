@@ -4,7 +4,7 @@ import { QuestionStore, QuestionLogic } from "../../../typechain";
 import { deployQuestionLogic, deployQuestionStore } from "../../../utils";
 import { generateId } from "../../utils";
 
-describe.only("QuestionStore", () => {
+describe("QuestionStore", () => {
   let questionStore: QuestionStore;
   let questionLogic: QuestionLogic;
 

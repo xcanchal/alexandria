@@ -85,7 +85,7 @@ describe("Tag", () => {
     });
   });
 
-  describe("Update tag description", () => {
+  describe("Update tag", () => {
     describe("Error cases", () => {
       it("should return a 404 error if tag does not exist", async () => {
         let error = null;
@@ -99,6 +99,28 @@ describe("Tag", () => {
           error = e;
         }
         expect(error.message).contains("404");
+      });
+
+      it("should return a 403 error if the caller is not the creator", async () => {
+        let error = null;
+        const [signer1, signer2] = await ethers.getSigners();
+        try {
+          const title = "blockchain";
+          const createTx = await alexandria
+            .connect(signer1)
+            .createTag(title, "all about blockchain");
+          await createTx.wait();
+          const updateTx = await alexandria
+            .connect(signer2)
+            .updateTag(
+              generateId(["string"], [title]),
+              "all about blockchain and web3"
+            );
+          await updateTx.wait();
+        } catch (e: any) {
+          error = e;
+        }
+        expect(error.message).contains("403");
       });
     });
     describe("Success cases", () => {
@@ -206,6 +228,24 @@ describe("Tag", () => {
           error = e;
         }
         expect(error.message).contains("404");
+      });
+      it("should return a 403 error if the caller is not the creator", async () => {
+        let error = null;
+        const [signer1, signer2] = await ethers.getSigners();
+        try {
+          const title = "blockchain";
+          const createTx = await alexandria
+            .connect(signer1)
+            .createTag(title, "all about blockchain");
+          await createTx.wait();
+          const updateTx = await alexandria
+            .connect(signer2)
+            .deleteTagById(generateId(["string"], [title]));
+          await updateTx.wait();
+        } catch (e: any) {
+          error = e;
+        }
+        expect(error.message).contains("403");
       });
     });
     describe("Success cases", () => {
