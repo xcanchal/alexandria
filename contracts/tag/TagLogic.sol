@@ -44,12 +44,12 @@ contract TagLogic is Ownable, TagTypes {
             );
     }
 
-    function updateDescription(bytes32 id, string memory description)
-        public
-        onlyAlexandria
-        returns (bool success)
-    {
-        return store.updateDescription(id, description);
+    function updateDescription(
+        address caller,
+        bytes32 id,
+        string memory description
+    ) public onlyAlexandria returns (bool success) {
+        return store.updateDescription(caller, id, description);
     }
 
     function getById(bytes32 id)
@@ -70,8 +70,8 @@ contract TagLogic is Ownable, TagTypes {
         return store.getByIndex(index);
     }
 
-    function deleteById(bytes32 id) public onlyAlexandria {
-        store.deleteById(id);
+    function deleteById(address caller, bytes32 id) public onlyAlexandria {
+        store.deleteById(caller, id);
     }
 
     function count() public view onlyAlexandria returns (uint256) {

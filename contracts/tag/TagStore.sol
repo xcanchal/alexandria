@@ -38,19 +38,25 @@ contract TagStore is Ownable, TagTypes {
         return true;
     }
 
-    function updateDescription(bytes32 id, string memory description)
-        public
-        onlyLogic
-        returns (bool success)
-    {
+    function updateDescription(
+        address caller,
+        bytes32 id,
+        string memory description
+    ) public onlyLogic returns (bool success) {
         require(exists(id), "404");
+        require(records[id].data.creator == caller, "403");
         records[id].data.description = description;
         emit TagUpdated(records[id].data);
         return true;
     }
 
-    function deleteById(bytes32 id) public onlyLogic returns (bool success) {
+    function deleteById(address caller, bytes32 id)
+        public
+        onlyLogic
+        returns (bool success)
+    {
         require(exists(id), "404");
+        require(records[id].data.creator == caller, "403");
         Record memory record = records[id];
 
         uint256 indexToDelete = record.idListPointer;

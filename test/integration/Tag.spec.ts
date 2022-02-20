@@ -1,23 +1,41 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { TagStore, TagLogic, Alexandria } from "../../typechain";
+import {
+  Alexandria,
+  TagStore,
+  TagLogic,
+  QuestionStore,
+  QuestionLogic,
+} from "../../typechain";
 import { generateId } from "../utils";
 import {
   deployAlexandria,
   deployTagLogic,
   deployTagStore,
+  deployQuestionLogic,
+  deployQuestionStore,
 } from "../../utils";
 
 describe("Tag", () => {
   let tagStore: TagStore;
   let tagLogic: TagLogic;
+  let questionStore: QuestionStore;
+  let questionLogic: QuestionLogic;
   let alexandria: Alexandria;
 
   beforeEach(async () => {
-    // deploy contracts
+    // DEPLOY CONTRACTS
+    // Tag
     tagStore = await deployTagStore();
     tagLogic = await deployTagLogic(tagStore.address);
-    alexandria = await deployAlexandria(tagLogic.address);
+    // Question
+    questionStore = await deployQuestionStore();
+    questionLogic = await deployQuestionLogic(questionStore.address);
+    // Alexandria
+    alexandria = await deployAlexandria(
+      tagLogic.address,
+      questionLogic.address
+    );
     // update references
     await tagStore.upgradeLogic(tagLogic.address);
     await tagLogic.upgradeAlexandria(alexandria.address);
@@ -72,7 +90,7 @@ describe("Tag", () => {
       it("should return a 404 error if tag does not exist", async () => {
         let error = null;
         try {
-          const updateTx = await alexandria.updateTagDescription(
+          const updateTx = await alexandria.updateTag(
             generateId(["string"], ["unexisting-tag"]),
             "new description"
           );
@@ -107,10 +125,7 @@ describe("Tag", () => {
             done();
           });
 
-          const updateTx = await alexandria.updateTagDescription(
-            id,
-            newDescription
-          );
+          const updateTx = await alexandria.updateTag(id, newDescription);
           await updateTx.wait();
         })();
       });

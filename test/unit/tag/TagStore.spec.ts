@@ -2,6 +2,7 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { TagStore, TagLogic } from "../../../typechain";
 import { deployTagLogic, deployTagStore } from "../../../utils";
+import { generateId } from "../../utils";
 
 describe("TagStore", () => {
   let tagStore: TagStore;
@@ -48,7 +49,7 @@ describe("TagStore", () => {
         const [signer] = await ethers.getSigners();
         try {
           await tagStore.create({
-            id: ethers.utils.id("blockchain"),
+            id: generateId(["string"], ["blockchain"]),
             name: "blockchain",
             description: "all about blockchain",
             creator: signer.address,
@@ -66,9 +67,11 @@ describe("TagStore", () => {
     describe("Error cases", () => {
       it("should throw 403 error if not called by TagLogic", async () => {
         let error = null;
+        const [signer] = await ethers.getSigners();
         try {
           await tagStore.updateDescription(
-            ethers.utils.id("blockchain"),
+            signer.address,
+            generateId(["string"], ["blockchain"]),
             "all about blockchain and web3"
           );
         } catch (e: any) {
@@ -83,8 +86,12 @@ describe("TagStore", () => {
     describe("Error cases", () => {
       it("should throw 403 error if not called by TagLogic", async () => {
         let error = null;
+        const [signer] = await ethers.getSigners();
         try {
-          await tagStore.deleteById(ethers.utils.id("blockchain"));
+          await tagStore.deleteById(
+            signer.address,
+            generateId(["string"], ["blockchain"])
+          );
         } catch (e: any) {
           error = e;
         }
@@ -98,7 +105,7 @@ describe("TagStore", () => {
       it("should throw 403 error if not called by TagLogic", async () => {
         let error = null;
         try {
-          await tagStore.getById(ethers.utils.id("blockchain"));
+          await tagStore.getById(generateId(["string"], ["blockchain"]));
         } catch (e: any) {
           error = e;
         }
