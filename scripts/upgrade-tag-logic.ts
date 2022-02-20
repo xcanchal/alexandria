@@ -9,21 +9,17 @@ async function main() {
   console.log("TagLogic deployed to:", tagLogic.address);
 
   // Update references
-  const alexandriaAbi = [
-    "function upgradeTagLogic(address _tagLogicAddr) public",
-  ];
   const alexandria = new ethers.Contract(
     deployedAddresses.alexandria,
-    alexandriaAbi,
+    ["function upgradeTagLogic(address _tagLogicAddr) public"], // used abi
     signer
   );
   await alexandria.upgradeTagLogic(tagLogic.address);
   console.log("Updated TagLogic reference in Alexandria", tagLogic.address);
 
-  const tagStoreAbi = ["function upgradeLogic(address _logicAddress) public"];
   const tagStore = new ethers.Contract(
     deployedAddresses.tagStore,
-    tagStoreAbi,
+    ["function upgradeLogic(address _logicAddress) public"], // used abi
     signer
   );
   await tagStore.upgradeLogic(tagLogic.address);
