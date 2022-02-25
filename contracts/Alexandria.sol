@@ -55,7 +55,7 @@ contract Alexandria is Ownable, TagTypes, QuestionTypes {
     function createQuestion(
         string memory title,
         string memory body,
-        string[] memory tags
+        bytes32[] memory tags
     ) public {
         questionLogic.create(msg.sender, title, body, tags);
     }
@@ -64,7 +64,7 @@ contract Alexandria is Ownable, TagTypes, QuestionTypes {
         bytes32 id,
         string memory title,
         string memory body,
-        string[] memory tags
+        bytes32[] memory tags
     ) public {
         questionLogic.update(msg.sender, id, title, body, tags);
     }

@@ -2,13 +2,13 @@ import hre, { ethers } from "hardhat";
 
 export const deployedAddresses = {
   // rinkeby
-  alexandria: "0x46E367231Efda95953e6f00f4e4fe68fFd6648bB",
+  alexandria: "0x00C81384C9fc9570FD6826E1ad79E984EDb81A50",
   // tag
-  tagStore: "0x8B35171D0cD0816F56024F428cB3451324538668",
-  tagLogic: "0xaCbD6484E605e1a8b469aD955802b84aDBF997c4",
+  tagStore: "0xEC6A9AAe3929b1D1B3FABA41067B8a274083E5Be",
+  tagLogic: "0x570CFb7F6993BA5a065eC055B57cC6686Bb64246",
   // question
-  questionStore: "0x8ee83d0D21Ea919d2E01af9adb209b6C9167D780",
-  questionLogic: "0x95CE7c10949BFe38f2ebbDc8B1c5C7D1684e2b81",
+  questionStore: "0x54dF42969b0aB4c05f49709e9D5c2B24DEC2785C",
+  questionLogic: "0xD5E917d72eECd7b4347F7A953363414B89fBeF9c",
 };
 
 /* Alexandria */

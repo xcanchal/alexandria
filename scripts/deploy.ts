@@ -79,7 +79,7 @@ async function main() {
     alexandria.address,
     [
       "function upgradeTagLogic(address _tagLogicAddr) public",
-      "function upgradeQuestionLogic(address _questiongLogicAddr) public",
+      "function upgradeQuestionLogic(address _questionLogicAddr) public",
     ],
     signer
   );

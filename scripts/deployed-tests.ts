@@ -17,17 +17,19 @@ let alexandria: Alexandria;
   const TagLogic = await ethers.getContractFactory("TagLogic");
   tagLogic = await TagLogic.attach(deployedAddresses.tagLogic);
 
+  const [signer] = await ethers.getSigners();
+
   try {
     // 1. create a couple of tags
     console.log("Creating tag 1");
-    let createTx = await alexandria.createTag(
+    let createTagTx = await alexandria.createTag(
       "blockchain",
       "all about blockchain"
     );
-    await createTx.wait();
+    await createTagTx.wait();
     console.log("Creating tag 2");
-    createTx = await alexandria.createTag("pets", "all about pets");
-    await createTx.wait();
+    createTagTx = await alexandria.createTag("pets", "all about pets");
+    await createTagTx.wait();
 
     // 2. Retrieve each of them by index and id
     console.log("Get tag by id");
@@ -43,6 +45,26 @@ let alexandria: Alexandria;
     console.log("Counts tags");
     const count = await alexandria.countTags();
     console.log("tags count:", count);
+
+    // 4. Create a question in the "blockchain"" tag
+    const questionData = {
+      title: "Which is the difference between L2s and Sidechains in Ethereum?",
+      body: "I've heard a lot about those topics regrding scalability in Ethereum, and I want to know more about them.",
+      tags: [tag1.id],
+    };
+    console.log("Creating a question in 'blockchain' tag");
+    const createQuestionTx = await alexandria.createQuestion(
+      questionData.title,
+      questionData.body,
+      questionData.tags
+    );
+    await createQuestionTx.wait();
+
+    // 5. Retrieve the question by id
+    const question = await alexandria.getQuestionById(
+      generateId(["string", "address"], [questionData.title, signer.address])
+    );
+    console.log({ question });
   } catch (e: any) {
     console.log("ERROR!", e);
   }

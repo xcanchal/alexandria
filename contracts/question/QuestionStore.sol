@@ -50,7 +50,7 @@ contract QuestionStore is Ownable, QuestionTypes {
         bytes32 id,
         string memory title,
         string memory body,
-        string[] memory tags
+        bytes32[] memory tags
     ) public onlyLogic returns (bool success) {
         require(exists(id), "404");
         require(records[id].data.creator == caller, "403");

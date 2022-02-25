@@ -35,7 +35,7 @@ contract QuestionLogic is Ownable, QuestionTypes {
         address caller,
         string memory title,
         string memory body,
-        string[] memory tags
+        bytes32[] memory tags
     ) public onlyAlexandria returns (bool success) {
         return
             store.create(
@@ -55,7 +55,7 @@ contract QuestionLogic is Ownable, QuestionTypes {
         bytes32 id,
         string memory title,
         string memory body,
-        string[] memory tags
+        bytes32[] memory tags
     ) public onlyAlexandria returns (bool success) {
         return store.update(caller, id, title, body, tags);
     }

@@ -8,6 +8,6 @@ abstract contract QuestionTypes {
         string body;
         address creator;
         bool deleted;
-        string[] tags;
+        bytes32[] tags;
     }
 }

@@ -7,7 +7,7 @@ import Router from './router';
 import { AccountProvider } from './context/account';
 
 const client = new ApolloClient({
-  uri: 'https://api.studio.thegraph.com/query/19661/alexandria/0.0.15',
+  uri: 'https://api.studio.thegraph.com/query/19661/alexandria/0.0.18',
 });
 
 const App = () => (
