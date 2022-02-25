@@ -1,0 +1,50 @@
+type _Schema_
+  @fulltext(
+    name: "tagSearch"
+    language: en
+    algorithm: rank
+    include: [{
+      entity: "Tag",
+      fields: [
+        { name: "name" },
+        { name: "description" },
+        { name: "creator" }
+      ]
+    }]
+  )
+
+  @fulltext(
+    name: "questionSearch"
+    language: en
+    algorithm: rank
+    include: [{
+      entity: "Question",
+      fields: [
+        { name: "title" },
+        { name: "body" },
+        { name: "tags" },
+        { name: "creator" }
+      ]
+    }]
+  )
+
+type Tag @entity {
+  id: ID!
+  name: String!
+  description: String!
+  deleted: Boolean!
+  creator: String!
+  createdAt: BigInt!
+  updatedAt: BigInt!
+}
+
+type Question @entity {
+  id: ID!
+  title: String!
+  body: String!
+  creator: String!
+  deleted: Boolean!
+  tags: [String!]
+  createdAt: BigInt!
+  updatedAt: BigInt!
+}

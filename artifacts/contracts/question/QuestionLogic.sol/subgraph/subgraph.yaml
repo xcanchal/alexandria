@@ -1,0 +1,50 @@
+specVersion: 0.0.2
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: TagStore
+    network: rinkeby
+    source:
+      address: "0xEC6A9AAe3929b1D1B3FABA41067B8a274083E5Be"
+      abi: TagStore
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Tag
+      abis:
+        - name: TagStore
+          file: ./abis/TagStore.json
+      eventHandlers:
+        - event: TagCreated((bytes32,string,string,bool,address))
+          handler: handleTagCreated
+        - event: TagUpdated((bytes32,string,string,bool,address))
+          handler: handleTagUpdated
+        - event: TagDeleted((bytes32,string,string,bool,address))
+          handler: handleTagDeleted
+      file: ./src/mapping.ts
+  - kind: ethereum
+    name: QuestionStore
+    network: rinkeby
+    source:
+      address: "0x54dF42969b0aB4c05f49709e9D5c2B24DEC2785C"
+      abi: QuestionStore
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Question
+      abis:
+        - name: QuestionStore
+          file: ./abis/QuestionStore.json
+      eventHandlers:
+        - event: QuestionCreated((bytes32,string,string,address,bool,bytes32[]))
+          handler: handleQuestionCreated
+        - event: QuestionUpdated((bytes32,string,string,address,bool,bytes32[]))
+          handler: handleQuestionUpdated
+        - event: QuestionDeleted((bytes32,string,string,address,bool,bytes32[]))
+          handler: handleQuestionDeleted
+      file: ./src/mapping.ts
